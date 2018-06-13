@@ -42,7 +42,7 @@ class AppReglas():
             [reglasDes.ReglasDes("D", "Para ninguna observación la temperatura mínima debera ser mayor a "
                                  + "la lectura de termometro seco", "Temperatura")])
         self.reglas.extend(
-            [reglasDes.ReglasDes("D", "La lectura del termometro seco debe ser mayor a  "
+            [reglasDes.ReglasDes("E", "La lectura del termometro seco debe ser mayor a  "
                                  + "la lectura de termometro húmedo", "Temperatura")])
 
     """Reglas para temperatura"""
@@ -107,6 +107,9 @@ class AppReglas():
         """la temperatura del termometro seco  debe ser mayor a la del termometro húmedo a las 19 """
         datarev = self.data3h[self.data3h.iloc[:, 8] < self.data3h.iloc[:, 11]]
         return self.printEW(datarev, "TS19 > TH19", [1, 2, 3, 8, 11], typeE=enu.TypeErros(1))
+
+    def reglaF(self):
+        """La diferencia del termometro seco  menos el humedo debe ser grande para que la humedad relativa sea menor al 40%"""
 
 
     def printEW(self, dataf,varVer,cols=[1,2,3],unival=-400,nameV="none",typeE=enu.TypeErros(1)):
