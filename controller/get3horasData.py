@@ -64,6 +64,7 @@ class Get3HorasData():
         maximos['pref']="mx"
         minimos = data.loc[(data[var] == mintemp)].copy()
         minimos['pref']="mn"
+
         return pd.concat([maximos,minimos], ignore_index=True)
 
     def cleanTmaxTmin(self,data3h):
