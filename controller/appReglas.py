@@ -109,7 +109,7 @@ class AppReglas():
         return self.printEW(datarev, "TS19 > TH19", [1, 2, 3, 8, 11], typeE=enu.TypeErros(1))
 
     def reglaF(self):
-        """La diferencia del termometro seco  menos el humedo debe ser grande para que la humedad relativa sea menor al 40%"""
+        """humedad relativa menor al 40% es un error"""
 
 
     def printEW(self, dataf,varVer,cols=[1,2,3],unival=-400,nameV="none",typeE=enu.TypeErros(1)):

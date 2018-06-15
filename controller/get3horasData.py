@@ -48,7 +48,7 @@ class Get3HorasData():
         data[(data[['th07']] > 60)] = np.nan
         data[(data[['th13']] > 60)] = np.nan
         data[(data[['th19']] > 60)] = np.nan
-        #data.to_csv("/home/drosero/Escritorio/datatesRe.csv", encoding="utf-8", index=False, sep=";")
+        #data.to_csv("datatesRe.csv", encoding="utf-8", index=False, sep=";")
         return data
 
     def getTemExtSerie(self,codigo,var="tmax"):
