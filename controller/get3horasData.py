@@ -1,3 +1,8 @@
+# _*_ coding: utf-8 *_*
+#Autor: Darwin Rosero Vaca
+#Descripción: obtien los datos de las observaciones sinopticas
+
+
 from numpy import mintypecode
 
 import util.loadConfig as lc
@@ -5,10 +10,6 @@ import util.mchConect as mch
 from models import datoExtremo
 import pandas as pd
 import numpy as np
-
-# _*_ coding: utf-8 *_*
-#Autor: Darwin Rosero Vaca
-#Descripción: obtien los datos de las observaciones sinopticas
 
 class Get3HorasData():
     """Procesa la serie de una estación para cada año"""

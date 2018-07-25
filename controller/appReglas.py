@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 *_*
 # Autor: Darwin Rosero Vaca
-# Descripción: contiene las reglas para el contrpol de calidad de datos que provienen de las libretas
+# Descripción: contiene las reglas para el control de calidad de datos que provienen de las libretas
 # v1 24/mayo/2018 esta reglas se consideran para procesos anuales por estacion por estación
 from uu import encode
 
@@ -8,7 +8,9 @@ import numpy as np
 import pandas as pd
 from time import time
 
-from controller import get3horasData as d3h
+from numpy.ma import append
+
+from controller import get3horasData as d3h, getDailyData as dd
 from util import enumerations as enu
 from models import reglasDes
 
@@ -20,6 +22,12 @@ class AppReglas():
 
 
     def __init__(self, codigo, año):
+        """Constructor: Genera el dataframe con los datos de una estación dado el código y el año,
+         y calcula la temperatura maxima de la serie y la minima de la serie.
+
+         """
+        self.codigo=codigo
+        self.año=año
         data = d3h.Get3HorasData()
         self.data3h = data.getData(codigo, año)
         print(self.data3h.columns)
@@ -72,10 +80,12 @@ class AppReglas():
         """Ninguna observacion la temmax puede ser menor a la temp de termometro seco a las 07 """
         datarev = self.data3h[self.data3h.iloc[:, 4] <= self.data3h.iloc[:, 6]]
         rev =self.printEW(datarev ,"TMAX > TS07",[1,2,3,4,6],typeE=enu.TypeErros(1))
+
     def reglaC13(self):
         """Ninguna observacion la temmax puede ser menor a la temp de termometro seco a las 13 """
         datarev  = self.data3h[self.data3h.iloc[:, 4] < self.data3h.iloc[:, 7]]
         rev =self.printEW(datarev ,"TMAX >= TS13",[1,2,3,4,7],typeE=enu.TypeErros(1))
+
     def reglaC19(self):
         """Ninguna observacion la temmax puede ser menor a la temp de termometro seco a las 19 """
         datarev  = self.data3h[self.data3h.iloc[:, 4] <= self.data3h.iloc[:, 8]]
@@ -86,10 +96,12 @@ class AppReglas():
         """Ninguna observacion la tmin puede ser mayor a la tem del termometro seco a las 07"""
         datarev = self.data3h[self.data3h.iloc[:, 5] > self.data3h.iloc[:, 6]]
         return self.printEW(datarev, "TMNM <= TS07", [1, 2, 3, 5, 6], typeE=enu.TypeErros(1))
+
     def reglaD13(self):
         """Ninguna observacion la tmin puede ser mayor a la tem del termometro seco a las 13"""
         datarev = self.data3h[self.data3h.iloc[:, 5] >= self.data3h.iloc[:, 7]]
         return self.printEW(datarev, "TMNM < TS13", [1, 2, 3, 5, 7], typeE=enu.TypeErros(1))
+
     def reglaD19(self):
         """Ninguna observacion la tmin puede ser mayor a la tem del termometro seco a las 19"""
         datarev = self.data3h[self.data3h.iloc[:, 5] >= self.data3h.iloc[:, 8]]
@@ -99,17 +111,37 @@ class AppReglas():
         """la temperatura del termometro seco  debe ser mayor a la del termometro húmedo a las 07 """
         datarev = self.data3h[self.data3h.iloc[:, 6] < self.data3h.iloc[:, 9]]
         return self.printEW(datarev, "TS07 > TH07", [1, 2, 3, 6, 9], typeE=enu.TypeErros(1))
+
     def reglaE13(self):
         """la temperatura del termometro seco  debe ser mayor a la del termometro húmedo a las 13 """
         datarev = self.data3h[self.data3h.iloc[:, 7] < self.data3h.iloc[:, 10]]
         return self.printEW(datarev, "TS13 > TH13", [1, 2, 3, 7, 10], typeE=enu.TypeErros(1))
+
     def reglaE19(self):
         """la temperatura del termometro seco  debe ser mayor a la del termometro húmedo a las 19 """
         datarev = self.data3h[self.data3h.iloc[:, 8] < self.data3h.iloc[:, 11]]
         return self.printEW(datarev, "TS19 > TH19", [1, 2, 3, 8, 11], typeE=enu.TypeErros(1))
 
     def reglaF(self):
+
+        print("Regla Fresults")
+        print("-*/-*/-*-/-*/-*/-*/-*/-*/-*/-*/-**/")
         """humedad relativa menor al 40% es un error"""
+        #datarev = self.data3h[self.data3h.iloc[:, 9] <= 40]
+        ddClass=dd.GetDailyData()
+        datarev=ddClass.getDaily(self.codigo,self.año,"vd014")
+        ltFilter=datarev.iloc[:,3:] <= 59.0
+        eFilter=datarev.iloc[:,3:] >= 100
+
+        print(datarev.iloc[:,3:].max(axis=1))
+        print(datarev.iloc[:, 3:].mean(axis=1))
+        print(datarev.iloc[:, 3:].min(axis=1))
+
+        print(datarev)
+        print(ltFilter.any())
+        #print(eFilter.any())
+
+        #return self.printEW(datarev, "TS19 > TH19", [1, 2, 3, 9], typeE=enu.TypeErros(1))
 
 
     def printEW(self, dataf,varVer,cols=[1,2,3],unival=-400,nameV="none",typeE=enu.TypeErros(1)):
@@ -134,15 +166,14 @@ class AppReglas():
 appR = AppReglas("M0003", 2014)
 
 ra=appR.reglaA()
-#appR.printEW(ra)
 rb=appR.reglaB()
-#appR.printEW(rb)
-rc07=appR.reglaC07()
+"""rc07=appR.reglaC07()
 rc13=appR.reglaC13()
 rc19=appR.reglaC19()
 rd07=appR.reglaD07()
 rd13=appR.reglaD13()
 rd19=appR.reglaD19()
 re07=appR.reglaE07()
-re13=appR.reglaE13()
+re13=appR.reglaE13()"""
 re19=appR.reglaE19()
+rf=appR.reglaF()
