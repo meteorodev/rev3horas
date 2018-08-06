@@ -11,8 +11,9 @@ from time import time
 from numpy.ma import append
 
 from controller import get3horasData as d3h, getDailyData as dd
-from util import enumerations as enu
+from util import enumerations as enu, toTimeSerie as ts
 from models import reglasDes
+from time import time
 
 class AppReglas():
     """ definen las reglas qeu controlan la calidad de los datos
@@ -91,7 +92,6 @@ class AppReglas():
         datarev  = self.data3h[self.data3h.iloc[:, 4] <= self.data3h.iloc[:, 8]]
         rev =self.printEW(datarev ,"TMAX > TS19",[1,2,3,4,8],typeE=enu.TypeErros(1))
 
-
     def reglaD07(self):
         """Ninguna observacion la tmin puede ser mayor a la tem del termometro seco a las 07"""
         datarev = self.data3h[self.data3h.iloc[:, 5] > self.data3h.iloc[:, 6]]
@@ -123,22 +123,30 @@ class AppReglas():
         return self.printEW(datarev, "TS19 > TH19", [1, 2, 3, 8, 11], typeE=enu.TypeErros(1))
 
     def reglaF(self):
-
+        tsD=ts.ToTimeSerie()
         print("Regla Fresults")
         print("-*/-*/-*-/-*/-*/-*/-*/-*/-*/-*/-**/")
         """humedad relativa menor al 40% es un error"""
         #datarev = self.data3h[self.data3h.iloc[:, 9] <= 40]
         ddClass=dd.GetDailyData()
         datarev=ddClass.getDaily(self.codigo,self.año,"vd014")
+
+        startTime = time()
+        datarevTs = tsD.unaEstacionDia(datarev)
+        elapsedTime = time() - startTime
+        print("\n appreglas.rreglaF : tiempo trasncurrido: %.10f seconds." % elapsedTime)
+
         ltFilter=datarev.iloc[:,3:] <= 59.0
         eFilter=datarev.iloc[:,3:] >= 100
 
-        print(datarev.iloc[:,3:].max(axis=1))
+        """print(datarev.iloc[:,3:].max(axis=1))
         print(datarev.iloc[:, 3:].mean(axis=1))
-        print(datarev.iloc[:, 3:].min(axis=1))
-
+        print(datarev.iloc[:, 3:].min(axis=1))"""
+        errores = datarev.filter(items=['31'])
         print(datarev)
-        print(ltFilter.any())
+        print(type(ltFilter.any()))
+
+        print(ltFilter.shape)
         #print(eFilter.any())
 
         #return self.printEW(datarev, "TS19 > TH19", [1, 2, 3, 9], typeE=enu.TypeErros(1))
@@ -165,15 +173,15 @@ class AppReglas():
 
 appR = AppReglas("M0003", 2014)
 
-ra=appR.reglaA()
+"""ra=appR.reglaA()
 rb=appR.reglaB()
-"""rc07=appR.reglaC07()
+rc07=appR.reglaC07()
 rc13=appR.reglaC13()
 rc19=appR.reglaC19()
 rd07=appR.reglaD07()
 rd13=appR.reglaD13()
 rd19=appR.reglaD19()
 re07=appR.reglaE07()
-re13=appR.reglaE13()"""
-re19=appR.reglaE19()
+re13=appR.reglaE13()
+re19=appR.reglaE19()"""
 rf=appR.reglaF()
