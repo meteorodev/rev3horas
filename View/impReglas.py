@@ -2,9 +2,11 @@ from controller.appReglas import AppReglas
 from util import enumerations as enu
 from openpyxl import Workbook
 
+#Estaciones selecionadas
 
 listEstation=['M1219','M1221','M1230','M1231','M1233','M1238','M1239','M1240','M1243','M1244','M1246','M1248',
     'M1249','M1250','M1256','M1257','M1257','M1259','M1260','M1261','M1265','M1267']
+
 
 wb= Workbook()
 
