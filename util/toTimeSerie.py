@@ -1,8 +1,6 @@
 # _*_ coding: utf-8 *_*
 #Autor: Darwin Rosero Vaca
 #Descripción:
-from _tracemalloc import start
-from builtins import type, filter
 
 import pandas as pd
 import numpy as np
@@ -16,11 +14,10 @@ class ToTimeSerie():
         """Constructor for ToTimeSerie"""
 
     def unaEstacionDia(self, datam):
-        """Tranfoema la matriz de datos diarios a timeserie
+        """Tranforma la matriz de datos diarios a timeserie
         del formato : codigo    anio   mes    v1    v2  ...    v27   v28   v29   v30   v31
         al formato  codigo    anio   mes dia valor
         """
-        print("Con funcion iloc")
         firstR = datam.iloc[1,:]
         codigo=firstR.iloc[0]
         ai=int(firstR.iloc[1])
@@ -28,10 +25,9 @@ class ToTimeSerie():
         lastR = datam.iloc[-1, :]
         af = int(firstR.iloc[1])
         mesf=12
-        # crea la serie con las fechas
+        # crea la serie con las fechas y valor vacio
         serie=pd.date_range((str(ai)+"/01/01"),(str(af)+"/12/31"),name="fecha").to_frame(index=False)
         serie["val"]=np.nan
-        print(serie.head())
         #se recorre cada fila del dataframe de datos y se calcula la posicion basado en el dia que ocupe
         posi=0
         posf=0
@@ -40,17 +36,21 @@ class ToTimeSerie():
             while mesi <= mesf:
                 dmes=self.getDiasmes(ai,mesi)
                 posf+=dmes
-                #filtrar los datos po r las fechas en las que se va recorriendo
+                #filtrar los datos por fechas en las que se va recorriendo
                 filtrado=datam[(datam['anio']==ai) & (datam['mes']==mesi)]
                 if filtrado.empty == False:
-                    print("fecha inicial ", ai, "-", mesi, " fecha final ", af, "-", mesf, "dias a contar ", dmes,
-                          "conteo ", str(cuentadias))
+                   # print("fecha inicial ", ai, "-", mesi, " fecha final ", af, "-", mesf, "dias a contar ", dmes,
+                    #  "conteo ", str(cuentadias))
                     serie.iloc[posi:posf,1] = filtrado.iloc[0,3:(dmes+3)].values
                 mesi+=1
                 posi=posf
             mesi=1
             ai+=1
-        print(serie)
+        return serie
+
+
+    def fechaToAMD(self):
+        """Cambia la fila fecha a formato año mes dia"""
 
 
 
@@ -70,9 +70,9 @@ class ToTimeSerie():
         mi=mes de inicio , ma = mes actual(leido de los datos)
         di=dia de inicio , ma = dia actual(leido de los datos)
         """
-        fa=aa-ai
-        fm=ma-mi
-        fd=da-di
+        fa = aa-ai
+        fm = ma-mi
+        fd = da-di
 
 
 

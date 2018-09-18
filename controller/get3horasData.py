@@ -41,14 +41,24 @@ class Get3HorasData():
                     y se remplaza esos valores por np.nan para las columnas
                     tmax  tmin  ts07  ts13  ts19  th07  th13  th19
                 """
-        data[(data[['tmax']] > 60)] = np.nan
-        data[(data[['tmin']] > 60)] = np.nan
-        data[(data[['ts07']] > 60)] = np.nan
-        data[(data[['ts13']] > 60)] = np.nan
-        data[(data[['ts19']] > 60)] = np.nan
-        data[(data[['th07']] > 60)] = np.nan
-        data[(data[['th13']] > 60)] = np.nan
-        data[(data[['th19']] > 60)] = np.nan
+        data[(data[['tmax']] == 99.9)] = np.nan
+        data[(data[['tmin']] == 99.9)] = np.nan
+        data[(data[['ts07']] == 99.9)] = np.nan
+        data[(data[['ts13']] == 99.9)] = np.nan
+        data[(data[['ts19']] == 99.9)] = np.nan
+        data[(data[['th07']] == 99.9)] = np.nan
+        data[(data[['th13']] == 99.9)] = np.nan
+        data[(data[['th19']] == 99.9)] = np.nan
+        data[(data[['ev07']] == 9999.99)] = np.nan
+        data[(data[['ev13']] == 9999.99)] = np.nan
+        data[(data[['ev19']] == 9999.99)] = np.nan
+        data[(data[['rr07']] == 999.9)] = np.nan
+        data[(data[['rr07']] == 888.8)] = np.nan
+        data[(data[['rr13']] == 999.9)] = np.nan
+        data[(data[['rr13']] == 888.8)] = np.nan
+        data[(data[['rr19']] == 999.9)] = np.nan
+        data[(data[['rr19']] == 888.8)] = np.nan
+
         #data.to_csv("datatesRe.csv", encoding="utf-8", index=False, sep=";")
         return data
 
@@ -58,7 +68,7 @@ class Get3HorasData():
         conne = mch.MchConect(self.mchcred.db_host, self.mchcred.db_user, self.mchcred.db_pass, self.mchcred.db_name)
         sentencia = "select anio, mes , dia, "+var+" from clm0002 where codigo ='"+codigo+"' and dia < 32;"
         data = conne.pdConsulta(sentencia)
-        data = data[(data[var] < 60)] ##devuelve los datos cuyo valor sea menor a 60 ºC
+        data = data[(data[var] != 99.9)] ##devuelve los datos cuyo valor sea diferente a 99.9 a 60 ºC
         maxtemp = data[var].max()
         mintemp = data[var].min()
         maximos = data.loc[(data[var] == maxtemp)].copy()
