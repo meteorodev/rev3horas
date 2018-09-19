@@ -64,8 +64,8 @@ class AppReglas():
         #print(self.extTemMax[(self.extTemMax['pref'] == "mx")])
         maxSerie = self.extTemMax[(self.extTemMax['pref'] == "mx")].iloc[0, 3]
         # comparar con la serie
-        datarev = self.data3h[self.data3h.iloc[:, 4] >= maxSerie]
-        return self.printEW(datarev," A TMAX > TMAX Serie",[0,1,2,3,4],unival=maxSerie,nameV="maxSerie",typeE=enu.TypeErros(2))
+        datarev = self.data3h[self.data3h.iloc[:, 4] > maxSerie]
+        return self.printEW(datarev,"TMAX > TMAX Serie",[0,1,2,3,4],unival=maxSerie,nameV="maxSerie",typeE=enu.TypeErros(2))
 
     def reglaB(self,):
         """Para ninguna observacion de la temperatura mínima
@@ -74,8 +74,8 @@ class AppReglas():
         #print(self.extTemMin[(self.extTemMin['pref'] == "mn")])
         minSerie = self.extTemMin[(self.extTemMin['pref'] == "mn")].iloc[0, 3]
         # comparar con la serire
-        datarev = self.data3h[self.data3h.iloc[:, 5] <= minSerie]
-        return self.printEW(datarev, " B TMIN < TMIN Serie", [0,1, 2, 3, 5], unival=minSerie, nameV="minSerie",typeE=enu.TypeErros(2))
+        datarev = self.data3h[self.data3h.iloc[:, 5] < minSerie]
+        return self.printEW(datarev, "TMIN < TMIN Serie", [0,1, 2, 3, 5], unival=minSerie, nameV="minSerie",typeE=enu.TypeErros(2))
 
     def reglaC(self,colIzq,colDer,regla,typeE=enu.TypeErros(1)):
         """Ninguna observacion la temmax puede ser menor a la temp de termometro seco """
@@ -95,35 +95,24 @@ class AppReglas():
 
     def reglaF(self, minval=40,maxval=100):
         tsD=ts.ToTimeSerie()
-        #print("\nRegla HR < 40% o HR > 100")
         """humedad relativa menor al 40% es un error"""
-        #datarev = self.data3h[self.data3h.iloc[:, 9] <= 40]
         ddClass=dd.GetDailyData()
         datarev=ddClass.getDaily(self.codigo,self.año,"vd014")
-        #startTime = time()
         datarevTs = tsD.unaEstacionDia(datarev)
-        #elapsedTime = time() - startTime
-        #print("\n appreglas.rreglaF : tiempo trasncurrido: %.10f seconds." % elapsedTime)
-        #print(datarevTs)
         ltFilter=datarevTs[datarevTs['val'] <= minval].copy()
 
         ltFilter['causa'] = "HR <= "+str(minval)+"%"
         mtFilter=datarevTs[datarevTs['val'] >= maxval].copy()
         mtFilter['causa'] = "HR => "+str(maxval)+"%"
         datarev = pd.concat([ltFilter,mtFilter],ignore_index=True,axis=0)
-        ##datarev['codigo']  =self.data3h['codigo'][0]
-        """print(datarev.iloc[:,3:].max(axis=1))
-        print(datarev.iloc[:, 3:].mean(axis=1))
-        print(datarev.iloc[:, 3:].min(axis=1))"""
-
         if datarev.empty:
             return datarev
         else:
             datarev['codigo']=self.data3h['codigo'][0]
             datarev['typeE'] = enu.TypeErros(1).name
+            datarev['fecha'] = datarev['fecha'].map(str)
             datarev=datarev[['codigo','fecha','val','typeE','causa']]
-            #print(datarev)
-            #print("============================")
+            print(datarev)
             return datarev
 
 
